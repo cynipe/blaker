@@ -16,14 +16,16 @@ import (
 )
 
 type Blaker struct {
-	db    *dynamodb.DynamoDB
-	clock clock.Clock
+	db        *dynamodb.DynamoDB
+	clock     clock.Clock
+	configKey string
 }
 
-func New(db *dynamodb.DynamoDB, clock clock.Clock) *Blaker {
+func New(db *dynamodb.DynamoDB, clock clock.Clock, configKey string) *Blaker {
 	return &Blaker{
-		db:    db,
-		clock: clock,
+		db:        db,
+		clock:     clock,
+		configKey: configKey,
 	}
 }
 
@@ -85,14 +87,19 @@ func (b *Blaker) getBreakTime() (*time.Time, error) {
 	req, res := b.db.GetItemRequest(&dynamodb.GetItemInput{
 		TableName: aws.String("blaker_config"),
 		Key: map[string]*dynamodb.AttributeValue{
-			"name": {S: aws.String("break_time")},
+			"name": {S: aws.String(b.configKey)},
 		},
 	})
 	if err := req.Send(); err != nil {
-		return nil, errors.Wrap(err, "failed to retrieve break_time from blaker_config, check your ddb.")
+		return nil, errors.Wrapf(err, "failed to retrieve value for key `%s` from blaker_config, check your ddb.", b.configKey)
 	}
 
-	val := aws.StringValue(res.Item["value"].S)
+	v := res.Item["value"]
+	if v == nil {
+		return nil, errors.Errorf("failed to retrieve value for key `%s` from blaker_config, check your ddb.", b.configKey)
+	}
+
+	val := aws.StringValue(v.S)
 	if val == "" {
 		return nil, nil
 	}
