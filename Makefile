@@ -1,4 +1,6 @@
 export GO111MODULE := on
+GOOS   := linux
+GOARCH := amd64
 
 AWS_PROFILE :=
 CMD         := echo hey
