@@ -43,6 +43,11 @@ func blakerApp() *cli.App {
 			Name:  "region, r",
 			Usage: "aws region to use",
 		},
+		&cli.StringFlag{
+			Name:        "config-key, c",
+			Usage:       "config key for ddb table",
+			Value:       "default",
+		},
 	}
 	app.Writer = writer
 	app.ErrWriter = errWriter
@@ -68,7 +73,7 @@ func run(ctx *cli.Context) error {
 		cmdArgs = args[1:]
 	}
 
-	b := blaker.New(dynamodb.New(sess), clock.New())
+	b := blaker.New(dynamodb.New(sess), clock.New(), ctx.String("config-key"))
 
 	status, err := b.RunCmd(&blaker.RunCmdInput{
 		Command: args.First(),
