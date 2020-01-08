@@ -17,5 +17,5 @@
 
     # after break time
     $ blaker echo hey
-    the command cannot be run after 2020-01-07T20:42:00+09:00. skipped command: `echo yay`
+    the command cannot be run after 2020-01-01T10:00:00+09:00. skipped command: `echo yay`
     ```
