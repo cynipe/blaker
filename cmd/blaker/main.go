@@ -33,7 +33,7 @@ func main() {
 
 func blakerApp() *cli.App {
 	app := cli.NewApp()
-	app.Version = "0.0.1"
+	app.Version = "0.0.2"
 	app.Flags = []cli.Flag{
 		&cli.StringFlag{
 			Name:  "profile, p",
