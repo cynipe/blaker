@@ -8,6 +8,7 @@ import (
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/aws/session"
 	"github.com/aws/aws-sdk-go/service/dynamodb"
+	"github.com/pkg/errors"
 	"github.com/urfave/cli"
 
 	"github.com/cynipe/blaker/pkg/blaker"
@@ -92,6 +93,9 @@ func run(ctx *cli.Context) error {
 		case *blaker.SkipError:
 			if ctx.Bool("error-on-break") {
 				return cli.NewExitError(err, skipError)
+			}
+			if _, werr := fmt.Fprintln(ctx.App.Writer, err); werr != nil {
+				return cli.NewExitError(errors.Wrapf(werr, "failed to write skipped log: %s", err), blakerError)
 			}
 			return nil
 		default:
