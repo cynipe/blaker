@@ -50,7 +50,7 @@ func blakerApp() *cli.App {
 			Value: "default",
 		},
 		&cli.BoolFlag{
-			Name:  "block, b",
+			Name:  "error-on-break, E",
 			Usage: "return non-zero (250) if skipped",
 		},
 	}
