@@ -19,6 +19,7 @@ var (
 	errWriter io.Writer = os.Stderr
 
 	usageError = 1
+	skipError = 250
 	// tool error not the wrapped command error
 	blakerError = 255
 )
@@ -47,6 +48,10 @@ func blakerApp() *cli.App {
 			Name:        "config-key, c",
 			Usage:       "config key for ddb table",
 			Value:       "default",
+		},
+		&cli.BoolFlag{
+			Name:  "block, b",
+			Usage: "return non-zero (250) if skipped",
 		},
 	}
 	app.Writer = writer
@@ -83,7 +88,15 @@ func run(ctx *cli.Context) error {
 	})
 
 	if err != nil {
-		return cli.NewExitError(err, blakerError)
+		switch err.(type) {
+		case *blaker.SkipError:
+			if ctx.Bool("block") {
+				return cli.NewExitError(err, skipError)
+			}
+			return nil
+		default:
+			return cli.NewExitError(err, blakerError)
+		}
 	}
 
 	merr := make([]error, 0)
