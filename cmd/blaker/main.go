@@ -90,7 +90,7 @@ func run(ctx *cli.Context) error {
 	if err != nil {
 		switch err.(type) {
 		case *blaker.SkipError:
-			if ctx.Bool("block") {
+			if ctx.Bool("error-on-break") {
 				return cli.NewExitError(err, skipError)
 			}
 			return nil
