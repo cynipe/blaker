@@ -19,7 +19,7 @@ var (
 	errWriter io.Writer = os.Stderr
 
 	usageError = 1
-	skipError = 250
+	skipError  = 250
 	// tool error not the wrapped command error
 	blakerError = 255
 )
@@ -45,9 +45,9 @@ func blakerApp() *cli.App {
 			Usage: "aws region to use",
 		},
 		&cli.StringFlag{
-			Name:        "config-key, c",
-			Usage:       "config key for ddb table",
-			Value:       "default",
+			Name:  "config-key, c",
+			Usage: "config key for ddb table",
+			Value: "default",
 		},
 		&cli.BoolFlag{
 			Name:  "block, b",
