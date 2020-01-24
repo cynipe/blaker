@@ -3,6 +3,7 @@ package blaker
 import (
 	"fmt"
 	"io"
+	"strings"
 	"time"
 
 	"github.com/pkg/errors"
@@ -29,6 +30,12 @@ func New(db *dynamodb.DynamoDB, clock clock.Clock, configKey string) *Blaker {
 	}
 }
 
+type SkipError struct{}
+
+func (s *SkipError) Error() string {
+	return "skipped error occurred"
+}
+
 type RunCmdInput struct {
 	Command      string
 	Args         []string
@@ -45,11 +52,15 @@ func (b *Blaker) RunCmd(input *RunCmdInput) (cmd.Status, error) {
 		return cmd.Status{}, err
 	}
 	if breakTime != nil && b.clock.Now().After(*breakTime) {
-		skipErr := NewSkipError(*breakTime, input)
-		if _, err := fmt.Fprintf(input.Stderr, skipErr.Error()); err != nil {
-			return cmd.Status{}, errors.Wrapf(err, "failed to write skipped log: %s", skipErr.Error())
+		msg := fmt.Sprintf("the command cannot be run after %s. skipped command: `%s %s`",
+			breakTime.Format(time.RFC3339),
+			input.Command,
+			strings.Join(input.Args, " "),
+		)
+		if _, err := fmt.Fprintf(input.Stderr, msg); err != nil {
+			return cmd.Status{}, errors.Wrapf(err, "failed to write skipped log: %s", msg)
 		}
-		return cmd.Status{}, skipErr
+		return cmd.Status{}, &SkipError{}
 	}
 
 	options := cmd.Options{
