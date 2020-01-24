@@ -8,6 +8,7 @@ import (
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/aws/session"
 	"github.com/aws/aws-sdk-go/service/dynamodb"
+	"github.com/go-cmd/cmd"
 	"github.com/pkg/errors"
 	"github.com/urfave/cli"
 
@@ -88,9 +89,14 @@ func run(ctx *cli.Context) error {
 		Stderr:  ctx.App.ErrWriter,
 	})
 
+	return errorHandling(err, ctx, status)
+}
+
+func errorHandling(err error, ctx *cli.Context, status cmd.Status) error {
 	if err != nil {
 		switch err.(type) {
 		case *blaker.SkipError:
+			// on break-time
 			if ctx.Bool("error-on-break") {
 				return cli.NewExitError(err, skipError)
 			}
