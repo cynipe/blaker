@@ -57,7 +57,7 @@ func (b *Blaker) RunCmd(input *RunCmdInput) (cmd.Status, error) {
 			input.Command,
 			strings.Join(input.Args, " "),
 		)
-		if _, err := fmt.Fprintf(input.Stderr, msg); err != nil {
+		if _, err := fmt.Fprintln(input.Stderr, msg); err != nil {
 			return cmd.Status{}, errors.Wrapf(err, "failed to write skipped log: %s", msg)
 		}
 		return cmd.Status{}, &SkipError{}
