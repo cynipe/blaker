@@ -11,7 +11,7 @@ type BreakError struct {
 	input     *RunCmdInput
 }
 
-func NewSkipError(breakTime time.Time, input *RunCmdInput) *BreakError {
+func NewBreakError(breakTime time.Time, input *RunCmdInput) *BreakError {
 	return &BreakError{
 		breakTime: breakTime,
 		input:     input,
