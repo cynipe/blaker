@@ -8,6 +8,8 @@ import (
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/aws/session"
 	"github.com/aws/aws-sdk-go/service/dynamodb"
+	"github.com/go-cmd/cmd"
+	"github.com/pkg/errors"
 	"github.com/urfave/cli"
 
 	"github.com/cynipe/blaker/pkg/blaker"
@@ -19,6 +21,7 @@ var (
 	errWriter io.Writer = os.Stderr
 
 	usageError = 1
+	breakError = 250
 	// tool error not the wrapped command error
 	blakerError = 255
 )
@@ -44,9 +47,13 @@ func blakerApp() *cli.App {
 			Usage: "aws region to use",
 		},
 		&cli.StringFlag{
-			Name:        "config-key, c",
-			Usage:       "config key for ddb table",
-			Value:       "default",
+			Name:  "config-key, c",
+			Usage: "config key for ddb table",
+			Value: "default",
+		},
+		&cli.BoolFlag{
+			Name:  "error-on-break, E",
+			Usage: "return non-zero (250) if on break time",
 		},
 	}
 	app.Writer = writer
@@ -82,8 +89,24 @@ func run(ctx *cli.Context) error {
 		Stderr:  ctx.App.ErrWriter,
 	})
 
+	return handleError(err, ctx, status)
+}
+
+func handleError(err error, ctx *cli.Context, status cmd.Status) error {
 	if err != nil {
-		return cli.NewExitError(err, blakerError)
+		switch err.(type) {
+		case *blaker.BreakError:
+			// on break-time
+			if ctx.Bool("error-on-break") {
+				return cli.NewExitError(err, breakError)
+			}
+			if _, werr := fmt.Fprintln(ctx.App.Writer, err); werr != nil {
+				return cli.NewExitError(errors.Wrapf(werr, "failed to write skipped log: %s", err), blakerError)
+			}
+			return nil
+		default:
+			return cli.NewExitError(err, blakerError)
+		}
 	}
 
 	merr := make([]error, 0)

@@ -2,10 +2,10 @@ package blaker
 
 import (
 	"fmt"
-	"github.com/pkg/errors"
 	"io"
-	"strings"
 	"time"
+
+	"github.com/pkg/errors"
 
 	"github.com/go-cmd/cmd"
 
@@ -45,15 +45,7 @@ func (b *Blaker) RunCmd(input *RunCmdInput) (cmd.Status, error) {
 		return cmd.Status{}, err
 	}
 	if breakTime != nil && b.clock.Now().After(*breakTime) {
-		msg := fmt.Sprintf("the command cannot be run after %s. skipped command: `%s %s`",
-			breakTime.Format(time.RFC3339),
-			input.Command,
-			strings.Join(input.Args, " "),
-		)
-		if _, err := fmt.Fprintf(input.Stderr, msg); err != nil {
-			return cmd.Status{}, errors.Wrapf(err, "failed to write skipped log: %s", msg)
-		}
-		return cmd.Status{}, nil
+		return cmd.Status{}, NewSkipError(*breakTime, input)
 	}
 
 	options := cmd.Options{
