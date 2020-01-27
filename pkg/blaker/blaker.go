@@ -45,7 +45,7 @@ func (b *Blaker) RunCmd(input *RunCmdInput) (cmd.Status, error) {
 		return cmd.Status{}, err
 	}
 	if breakTime != nil && b.clock.Now().After(*breakTime) {
-		return cmd.Status{}, NewSkipError(*breakTime, input)
+		return cmd.Status{}, NewBreakError(*breakTime, input)
 	}
 
 	options := cmd.Options{
