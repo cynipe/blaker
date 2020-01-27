@@ -89,10 +89,10 @@ func run(ctx *cli.Context) error {
 		Stderr:  ctx.App.ErrWriter,
 	})
 
-	return errorHandling(err, ctx, status)
+	return handleError(err, ctx, status)
 }
 
-func errorHandling(err error, ctx *cli.Context, status cmd.Status) error {
+func handleError(err error, ctx *cli.Context, status cmd.Status) error {
 	if err != nil {
 		switch err.(type) {
 		case *blaker.SkipError:
