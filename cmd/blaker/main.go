@@ -21,7 +21,7 @@ var (
 	errWriter io.Writer = os.Stderr
 
 	usageError = 1
-	skipError  = 250
+	breakError = 250
 	// tool error not the wrapped command error
 	blakerError = 255
 )
@@ -53,7 +53,7 @@ func blakerApp() *cli.App {
 		},
 		&cli.BoolFlag{
 			Name:  "error-on-break, E",
-			Usage: "return non-zero (250) if skipped",
+			Usage: "return non-zero (250) if on break time",
 		},
 	}
 	app.Writer = writer
@@ -95,10 +95,10 @@ func run(ctx *cli.Context) error {
 func handleError(err error, ctx *cli.Context, status cmd.Status) error {
 	if err != nil {
 		switch err.(type) {
-		case *blaker.SkipError:
+		case *blaker.BreakError:
 			// on break-time
 			if ctx.Bool("error-on-break") {
-				return cli.NewExitError(err, skipError)
+				return cli.NewExitError(err, breakError)
 			}
 			if _, werr := fmt.Fprintln(ctx.App.Writer, err); werr != nil {
 				return cli.NewExitError(errors.Wrapf(werr, "failed to write skipped log: %s", err), blakerError)
