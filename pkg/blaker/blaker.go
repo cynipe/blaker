@@ -45,7 +45,7 @@ func (b *Blaker) RunCmd(input *RunCmdInput) (cmd.Status, error) {
 	if err != nil {
 		switch err.(type) {
 		case *BreakTimeAfterError:
-			return cmd.Status{}, errors.Wrap(err, fmt.Sprintf(" skipped command: `%s %s`",
+			return cmd.Status{}, errors.Wrap(err, fmt.Sprintf("skipped command: `%s %s` ",
 				input.Command,
 				strings.Join(input.Args, " "),
 			))
