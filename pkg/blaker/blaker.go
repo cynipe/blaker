@@ -3,6 +3,7 @@ package blaker
 import (
 	"fmt"
 	"io"
+	"strings"
 	"time"
 
 	"github.com/pkg/errors"
@@ -40,12 +41,17 @@ type RunCmdInput struct {
 }
 
 func (b *Blaker) RunCmd(input *RunCmdInput) (cmd.Status, error) {
-	breakTime, err := b.getBreakTime()
+	err := b.CanRunCmd(b.clock.Now())
 	if err != nil {
-		return cmd.Status{}, err
-	}
-	if breakTime != nil && b.clock.Now().After(*breakTime) {
-		return cmd.Status{}, NewBreakError(*breakTime, input)
+		switch err.(type) {
+		case *BreakTimeAfterError:
+			return cmd.Status{}, errors.Wrap(err, fmt.Sprintf(" skipped command: `%s %s`",
+				input.Command,
+				strings.Join(input.Args, " "),
+			))
+		default:
+			return cmd.Status{}, err
+		}
 	}
 
 	options := cmd.Options{
@@ -73,6 +79,17 @@ func (b *Blaker) RunCmd(input *RunCmdInput) (cmd.Status, error) {
 		time.Sleep(10 * time.Millisecond)
 	}
 	return status, nil
+}
+
+func (b *Blaker) CanRunCmd(t time.Time) error {
+	breakTime, err := b.getBreakTime()
+	if err != nil {
+		return err
+	}
+	if breakTime != nil && t.After(*breakTime) {
+		return NewBreakTimeAfterError(*breakTime)
+	}
+	return nil
 }
 
 func (b *Blaker) getBreakTime() (*time.Time, error) {

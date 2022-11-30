@@ -2,26 +2,21 @@ package blaker
 
 import (
 	"fmt"
-	"strings"
 	"time"
 )
 
-type BreakError struct {
+type BreakTimeAfterError struct {
 	breakTime time.Time
-	input     *RunCmdInput
 }
 
-func NewBreakError(breakTime time.Time, input *RunCmdInput) *BreakError {
-	return &BreakError{
+func NewBreakTimeAfterError(breakTime time.Time) *BreakTimeAfterError {
+	return &BreakTimeAfterError{
 		breakTime: breakTime,
-		input:     input,
 	}
 }
 
-func (s *BreakError) Error() string {
-	return fmt.Sprintf("the command cannot be run after %s. skipped command: `%s %s`",
+func (s *BreakTimeAfterError) Error() string {
+	return fmt.Sprintf("the command cannot be run after %s.",
 		s.breakTime.Format(time.RFC3339),
-		s.input.Command,
-		strings.Join(s.input.Args, " "),
 	)
 }
