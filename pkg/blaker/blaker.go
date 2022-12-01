@@ -75,7 +75,7 @@ func (b *Blaker) RunCmd(input *RunCmdInput) (cmd.Status, error) {
 	return status, nil
 }
 
-func (b *Blaker) getBreakTime() (*time.Time, error) {
+func (b *Blaker) GetBreakTime() (*time.Time, error) {
 	req, res := b.db.GetItemRequest(&dynamodb.GetItemInput{
 		TableName: aws.String("blaker_config"),
 		Key: map[string]*dynamodb.AttributeValue{
