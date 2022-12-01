@@ -20,7 +20,7 @@ jobs:
       uses: actions/checkout@v1
 
     - name: dependency install
-      uses: make deps
+      run: make deps
 
     - name: Build
       run: make build
