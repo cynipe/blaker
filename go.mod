@@ -1,4 +1,4 @@
-module github.com/cynipe/blaker
+module github.com/lowbridgee/blaker
 
 go 1.12
 

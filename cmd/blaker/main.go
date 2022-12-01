@@ -95,7 +95,7 @@ func run(ctx *cli.Context) error {
 func handleError(err error, ctx *cli.Context, status cmd.Status) error {
 	if err != nil {
 		switch err.(type) {
-		case *blaker.BreakError:
+		case *blaker.BreakTimeAfterError:
 			// on break-time
 			if ctx.Bool("error-on-break") {
 				return cli.NewExitError(err, breakError)
