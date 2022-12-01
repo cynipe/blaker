@@ -40,7 +40,7 @@ type RunCmdInput struct {
 }
 
 func (b *Blaker) RunCmd(input *RunCmdInput) (cmd.Status, error) {
-	breakTime, err := b.getBreakTime()
+	breakTime, err := b.GetBreakTime()
 	if err != nil {
 		return cmd.Status{}, err
 	}

@@ -1,5 +1,8 @@
 name: Go
-on: [push]
+on:
+  push:
+  pull_request:
+    types: [opened, synchronize, reopened]
 jobs:
 
   build:
@@ -15,6 +18,9 @@ jobs:
 
     - name: Check out code into the Go module directory
       uses: actions/checkout@v1
+
+    - name: dependency install
+      run: make deps
 
     - name: Build
       run: make build
